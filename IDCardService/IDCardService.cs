@@ -189,14 +189,14 @@ namespace IDCardService
             try
             {
                 context = HttpListener.EndGetContext(result);
+                context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
+                context.Response.ContentEncoding = Encoding.UTF8;
+
                 IDCardData obj = DirectReadCard();
                 string json = GetJsonByObject(obj);
-                
                 byte[] outputBytes = encoding.GetBytes(json);
 
-                context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
                 context.Response.ContentType = "application/json";
-                context.Response.ContentEncoding = Encoding.UTF8;
                 context.Response.ContentLength64 = outputBytes.Length;
                 context.Response.OutputStream.Write(outputBytes, 0, outputBytes.Length);
                 //logger.WriteEntry("完成HTTP请求，已应答。");
