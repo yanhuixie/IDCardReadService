@@ -12,11 +12,14 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Collections;
 
 namespace IDCardService
 {
     public partial class IDCardService : ServiceBase
     {
+        private SortedList lstMZ = new SortedList();
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
         public struct IDCardData
         {
@@ -25,7 +28,7 @@ namespace IDCardService
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 4)]
             public string Sex;   //性别
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 6)]
-            public string Nation; //名族
+            public string Nation; //民族
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 18)]
             public string Born; //出生日期
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 72)]
@@ -42,6 +45,9 @@ namespace IDCardService
             public string Reserved; // 保留
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 255)]
             public string PhotoFileName; // 照片路径
+
+            public string NationName;
+            public string SexName;
         }
 
         /************************端口类API *************************/
@@ -96,6 +102,65 @@ namespace IDCardService
             string prefix = String.Format("http://+:{0}/read/", this.port);
             HttpListener = new HttpListener();
             HttpListener.Prefixes.Add(prefix);
+
+            lstMZ.Add("01", "汉族");
+            lstMZ.Add("02", "蒙古族");
+            lstMZ.Add("03", "回族");
+            lstMZ.Add("04", "藏族");
+            lstMZ.Add("05", "维吾尔族");
+            lstMZ.Add("06", "苗族");
+            lstMZ.Add("07", "彝族");
+            lstMZ.Add("08", "壮族");
+            lstMZ.Add("09", "布依族");
+            lstMZ.Add("10", "朝鲜族");
+            lstMZ.Add("11", "满族");
+            lstMZ.Add("12", "侗族");
+            lstMZ.Add("13", "瑶族");
+            lstMZ.Add("14", "白族");
+            lstMZ.Add("15", "土家族");
+            lstMZ.Add("16", "哈尼族");
+            lstMZ.Add("17", "哈萨克族");
+            lstMZ.Add("18", "傣族");
+            lstMZ.Add("19", "黎族");
+            lstMZ.Add("20", "傈僳族");
+            lstMZ.Add("21", "佤族");
+            lstMZ.Add("22", "畲族");
+            lstMZ.Add("23", "高山族");
+            lstMZ.Add("24", "拉祜族");
+            lstMZ.Add("25", "水族");
+            lstMZ.Add("26", "东乡族");
+            lstMZ.Add("27", "纳西族");
+            lstMZ.Add("28", "景颇族");
+            lstMZ.Add("29", "柯尔克孜族");
+            lstMZ.Add("30", "土族");
+            lstMZ.Add("31", "达翰尔族");
+            lstMZ.Add("32", "仫佬族");
+            lstMZ.Add("33", "羌族");
+            lstMZ.Add("34", "布朗族");
+            lstMZ.Add("35", "撒拉族");
+            lstMZ.Add("36", "毛南族");
+            lstMZ.Add("37", "仡佬族");
+            lstMZ.Add("38", "锡伯族");
+            lstMZ.Add("39", "阿昌族");
+            lstMZ.Add("40", "普米族");
+            lstMZ.Add("41", "塔吉克族");
+            lstMZ.Add("42", "怒族");
+            lstMZ.Add("43", "乌孜别克族");
+            lstMZ.Add("44", "俄罗斯族");
+            lstMZ.Add("45", "鄂温克族");
+            lstMZ.Add("46", "德昂族");
+            lstMZ.Add("47", "保安族");
+            lstMZ.Add("48", "裕固族");
+            lstMZ.Add("49", "京族");
+            lstMZ.Add("50", "塔塔尔族");
+            lstMZ.Add("51", "独龙族");
+            lstMZ.Add("52", "鄂伦春族");
+            lstMZ.Add("53", "赫哲族");
+            lstMZ.Add("54", "门巴族");
+            lstMZ.Add("55", "珞巴族");
+            lstMZ.Add("56", "基诺族");
+            lstMZ.Add("57", "其它");
+            lstMZ.Add("98", "外国人入籍");
         }
 
         protected override void OnStart(string[] args)
@@ -302,6 +367,19 @@ namespace IDCardService
                     cardMsg.GrantDept = (new string(cartb, 79, 15)).Trim();
                     cardMsg.ValidBegin = new string(cartb, 94, 8);
                     cardMsg.ValidEnd = new string(cartb, 102, 8);
+                    switch (cardMsg.Sex)
+                    {
+                        case "1":
+                            cardMsg.SexName = "男";
+                            break;
+                        case "2":
+                            cardMsg.SexName = "女";
+                            break;
+                    }
+                    if (lstMZ.Contains(cardMsg.Nation))
+                    {
+                        cardMsg.NationName = lstMZ[cardMsg.Nation].ToString();
+                    }
                     return cardMsg;
                 }
                 else
