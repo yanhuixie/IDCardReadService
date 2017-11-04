@@ -186,6 +186,7 @@ namespace IDCardService
                 
                 byte[] outputBytes = encoding.GetBytes(json);
 
+                context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
                 context.Response.ContentType = "application/json";
                 context.Response.ContentEncoding = Encoding.UTF8;
                 context.Response.ContentLength64 = outputBytes.Length;
@@ -197,7 +198,6 @@ namespace IDCardService
                 byte[] outputBytes = encoding.GetBytes(ex.Message);
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "text/plain";
-                context.Response.ContentEncoding = Encoding.UTF8;
                 context.Response.ContentLength64 = outputBytes.Length;
                 context.Response.OutputStream.Write(outputBytes, 0, outputBytes.Length);
 
