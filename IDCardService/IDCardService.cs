@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Collections;
+using System.Globalization;
 
 namespace IDCardService
 {
@@ -93,6 +94,9 @@ namespace IDCardService
         private EventLog logger = new EventLog("Application");
         private string port = null;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IDCardService()
         {
             InitializeComponent();
@@ -163,6 +167,10 @@ namespace IDCardService
             lstMZ.Add("98", "外国人入籍");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
             HttpListener.Start();
@@ -214,12 +222,18 @@ namespace IDCardService
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected override void OnStop()
         {
             HttpListener.Close();
             logger.WriteEntry("HttpListener Closed.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected override void OnShutdown()
         {
             HttpListener.Close();
@@ -358,15 +372,15 @@ namespace IDCardService
                 {
                     string card = Marshal.PtrToStringUni(msg);
                     char[] cartb = card.ToCharArray();
-                    cardMsg.Name = (new string(cartb, 0, 15)).Trim();
-                    cardMsg.Sex = new string(cartb, 15, 1);
-                    cardMsg.Nation = new string(cartb, 16, 2);
-                    cardMsg.Born = new string(cartb, 18, 8);
-                    cardMsg.Address = (new string(cartb, 26, 35)).Trim();
-                    cardMsg.IDCardNo = new string(cartb, 61, 18);
-                    cardMsg.GrantDept = (new string(cartb, 79, 15)).Trim();
-                    cardMsg.ValidBegin = new string(cartb, 94, 8);
-                    cardMsg.ValidEnd = new string(cartb, 102, 8);
+                    cardMsg.Name       = (new string(cartb, 0, 15)).Trim();
+                    cardMsg.Sex        = new string(cartb, 15, 1);
+                    cardMsg.Nation     = new string(cartb, 16, 2);
+                    cardMsg.Born       = FmtDate(new string(cartb, 18, 8));
+                    cardMsg.Address    = (new string(cartb, 26, 35)).Trim();
+                    cardMsg.IDCardNo   = new string(cartb, 61, 18);
+                    cardMsg.GrantDept  = (new string(cartb, 79, 15)).Trim();
+                    cardMsg.ValidBegin = FmtDate(new string(cartb, 94, 8));
+                    cardMsg.ValidEnd   = FmtDate(new string(cartb, 102, 8));
                     switch (cardMsg.Sex)
                     {
                         case "1":
@@ -399,6 +413,22 @@ namespace IDCardService
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        private static string FmtDate(string date)
+        {
+            DateTime dt = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.CurrentCulture);
+            return dt.ToString("yyyy-MM-dd");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private static string GetJsonByObject(Object obj)
         {
             //实例化DataContractJsonSerializer对象，需要待序列化的对象类型
