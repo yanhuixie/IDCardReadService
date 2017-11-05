@@ -420,8 +420,15 @@ namespace IDCardService
         /// <returns></returns>
         private static string FmtDate(string date)
         {
-            DateTime dt = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.CurrentCulture);
-            return dt.ToString("yyyy-MM-dd");
+            try
+            {
+                DateTime dt = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.CurrentCulture);
+                return dt.ToString("yyyy-MM-dd");
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         /// <summary>
